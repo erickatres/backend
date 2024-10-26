@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\AdminsController;
+use App\Http\Controllers\AppointmentsController;
 
 // Client Routes
 Route::get('/clients', [ClientsController::class, 'index']);
@@ -24,6 +25,15 @@ Route::post('/admins/reset-password', [AdminsController::class, 'resetPassword']
 Route::get('/admins/{id}', [AdminsController::class, 'show']);
 Route::put('/admins/{id}', [AdminsController::class, 'update']);
 Route::delete('/admins/{id}', [AdminsController::class, 'destroy']);
+
+// Appointments Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/appointments', [AppointmentsController::class, 'store']); 
+    Route::get('/appointments', [AppointmentsController::class, 'index']); 
+    Route::get('/appointments/{id}', [AppointmentsController::class, 'show']); 
+    Route::put('/appointments/{id}', [AppointmentsController::class, 'update']); 
+    Route::delete('/appointments/{id}', [AppointmentsController::class, 'destroy']); 
+});
 
 // Route group for admin-managed services and supplies
 Route::middleware('auth:sanctum')->group(function () {
