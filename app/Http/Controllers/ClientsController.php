@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Clients;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail; // Import Mail facade
-use App\Mail\PasswordResetMail; // Import the PasswordResetMail mailable (create this if needed)
+
 
 class ClientsController extends Controller
 {
