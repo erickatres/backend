@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1>Appointment Confirmation</h1>
-    <p>Dear {{ $appointment['client_name'] }},</p>
+    <p>Dear {{ $appointment['first_name'] }} {{ $appointment['last_name'] }},</p> <!-- Updated -->
     <p>Your appointment has been successfully booked!</p>
     <ul>
         <li><strong>Phone:</strong> {{ $appointment['phone'] }}</li>

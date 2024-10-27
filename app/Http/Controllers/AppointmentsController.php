@@ -15,7 +15,8 @@ class AppointmentsController extends Controller
     {
         // Validate the form data
         $validatedData = $request->validate([
-            'client_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'email' => 'required|email|max:255',
             'address' => 'nullable|string|max:255',
@@ -34,7 +35,8 @@ class AppointmentsController extends Controller
 
             // Prepare the appointment data for the email
             $appointmentData = [
-                'client_name' => $validatedData['client_name'],
+                'first_name' => $validatedData['first_name'],
+                'last_name' => $validatedData['last_name'],
                 'service' => $validatedData['chosen_service'],
                 'date' => $validatedData['appointment_date'],
                 'time' => $validatedData['appointment_time'],

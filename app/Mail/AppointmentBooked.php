@@ -33,7 +33,7 @@ class AppointmentBooked extends Mailable
             subject: 'Appointment Booked',
         );
     }
-
+ 
     /**
      * Get the message content definition.
      */

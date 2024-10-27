@@ -12,7 +12,8 @@ class CreateAppointmentsTable extends Migration
             $table->id(); // Auto-incrementing ID
 
             // Client information
-            $table->string('client_name', 255);  // Limit string length for client_name
+            $table->string('first_name', 255);
+            $table->string('last_name', 255);  // Limit string length for client_name
             $table->string('phone', 25);  // Increase length to accommodate international numbers
             $table->string('email', 255);  // Standard email length
             $table->string('address', 255)->nullable();  // Address can be null

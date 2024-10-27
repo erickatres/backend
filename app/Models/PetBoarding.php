@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Appointments extends Model
+class PetBoarding extends Model
 {
     use HasFactory;
 
     // Define the table associated with the model
-    protected $table = 'appointments'; // Ensure this matches your actual table name
+    protected $table = 'pet_boardings'; // Ensure this matches your actual table name
 
     // Allow mass assignment for these fields
     protected $fillable = [
@@ -21,23 +21,25 @@ class Appointments extends Model
         'address',
         'furbabys_name',
         'pet_type',
-        'appointment_date',
-        'appointment_time',
-        'service_type',
-        'chosen_service',
+        'pet_check_in', // Added pet_check_in here
+        'check_in_date',
+        'check_in_time',
+        'days',
+        'hours',
         'additional_details',
     ];
 
-    // Casting appointment_date to a datetime instance
+    // Casting check_in_date to a date instance and check_in_time to a time instance
     protected $casts = [
-        'appointment_date' => 'datetime', // Change to 'date' if you only want the date
+        'check_in_date' => 'date',
+        'check_in_time' => 'time',
     ];
 
     // If you are not using timestamps in your table, set to false
     public $timestamps = true;  // Set to false if 'created_at' and 'updated_at' are not used
 
     /**
-     * Scope a query to only include appointments for a specific pet type.
+     * Scope a query to only include boarding for a specific pet type.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string $petType
@@ -49,14 +51,14 @@ class Appointments extends Model
     }
 
     /**
-     * Scope a query to only include appointments on a specific date.
+     * Scope a query to only include boarding appointments on a specific check-in date.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string $date
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeForAppointmentDate($query, string $date)
+    public function scopeForCheckInDate($query, string $date)
     {
-        return $query->whereDate('appointment_date', $date);
+        return $query->whereDate('check_in_date', $date);
     }
 }
