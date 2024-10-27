@@ -10,12 +10,17 @@ class PetBoardingBooked extends Mailable
 {
     use Queueable, SerializesModels;
 
+    /**
+     * The pet boarding booking data.
+     *
+     * @var array
+     */
     public $petBoarding;
 
     /**
      * Create a new message instance.
      *
-     * @param array $petBoarding
+     * @param array $petBoarding The pet boarding data
      * @return void
      */
     public function __construct(array $petBoarding)
@@ -30,8 +35,10 @@ class PetBoardingBooked extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.pet_boarding_booked') // Specify the view file to render
-                    ->subject('Pet Boarding Appointment Confirmation') // Set the email subject
-                    ->with(['petBoarding' => $this->petBoarding]); // Pass the petBoarding data to the view
+        return $this->subject('Pet Boarding Appointment Confirmation')
+                    ->view('emails.pet_boarding_booked')
+                    ->with([
+                        'petBoarding' => $this->petBoarding, // Passing pet boarding data to the view
+                    ]);
     }
 }

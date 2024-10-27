@@ -12,29 +12,29 @@ class CreateAppointmentsTable extends Migration
             $table->id(); // Auto-incrementing ID
 
             // Client information
-            $table->string('first_name', 255);
-            $table->string('last_name', 255);  // Limit string length for client_name
-            $table->string('phone', 25);  // Increase length to accommodate international numbers
-            $table->string('email', 255);  // Standard email length
-            $table->string('address', 255)->nullable();  // Address can be null
+            $table->string('first_name', 255); // First name of the client
+            $table->string('last_name', 255);  // Last name of the client
+            $table->string('phone', 25);        // Phone number (increased length for international)
+            $table->string('email', 255);       // Email address
+            $table->string('address', 255)->nullable(); // Address can be null
 
             // Pet information
-            $table->string('furbabys_name', 255);  // Standard length for pet's name
-            $table->string('pet_type', 50);  // Limit to reasonable length (e.g., "dog", "cat")
+            $table->string('furbabys_name', 255); // Pet's name
+            $table->string('pet_type', 50);        // Type of pet (e.g., "dog", "cat")
 
             // Appointment details
-            $table->date('appointment_date');  // Date field for appointments
-            $table->string('appointment_time', 10);  // Time field, 10 chars should suffice (e.g., "09:00 AM")
-            $table->string('service_type', 100);  // Limited length for service type
-            $table->string('chosen_service', 100);  // Limit the chosen service field
-            $table->string('additional_details', 500)->nullable();  // Optional field for additional details
+            $table->date('appointment_date');       // Date of the appointment
+            $table->string('appointment_time', 10); // Time of the appointment (format: "09:00 AM")
+            $table->string('service_type', 100);    // Type of service requested
+            $table->string('chosen_service', 100);   // Chosen specific service
+            $table->string('additional_details', 500)->nullable(); // Optional field for extra details
 
             // Timestamps
-            $table->timestamps();  // Includes created_at and updated_at
+            $table->timestamps(); // Includes created_at and updated_at
 
-            // Optional: Indexing commonly searched fields
-            $table->index('appointment_date');  // Index on appointment_date for faster querying
-            $table->index('client_name');  // Index on client_name for frequent lookups
+            // Indexing commonly searched fields
+            $table->index(['appointment_date']); // Index on appointment_date for faster querying
+            $table->index(['first_name', 'last_name']); // Combined index on first and last name for frequent lookups
         });
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PetBoarding;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class PetBoardingController extends Controller
@@ -21,26 +22,35 @@ class PetBoardingController extends Controller
             'pet_type' => 'required|string|max:255',
             'pet_check_in' => 'required|string|max:255',
             'check_in_date' => 'required|date',
-            'check_in_time' => 'required|time',
+            'check_in_time' => 'required|regex:/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', // Validate as HH:MM format
             'days' => 'required|integer|min:1',
             'hours' => 'required|integer|min:0',
             'additional_details' => 'nullable|string|max:500',
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        $petBoarding = PetBoarding::create($request->all());
+        try {
+            $petBoarding = PetBoarding::create($request->all());
 
-        return response()->json($petBoarding, 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Pet boarding appointment successfully created.',
+                'data' => $petBoarding
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Error creating pet boarding appointment: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to create pet boarding appointment'], 500);
+        }
     }
 
     // Get all pet boarding appointments
     public function index()
     {
         $petBoardings = PetBoarding::all();
-        return response()->json($petBoardings, 200);
+        return response()->json(['success' => true, 'data' => $petBoardings], 200);
     }
 
     // Get a specific pet boarding appointment by ID
@@ -49,10 +59,10 @@ class PetBoardingController extends Controller
         $petBoarding = PetBoarding::find($id);
 
         if (!$petBoarding) {
-            return response()->json(['message' => 'Pet Boarding not found'], 404);
+            return response()->json(['success' => false, 'message' => 'Pet Boarding not found'], 404);
         }
 
-        return response()->json($petBoarding, 200);
+        return response()->json(['success' => true, 'data' => $petBoarding], 200);
     }
 
     // Update a specific pet boarding appointment
@@ -61,7 +71,7 @@ class PetBoardingController extends Controller
         $petBoarding = PetBoarding::find($id);
 
         if (!$petBoarding) {
-            return response()->json(['message' => 'Pet Boarding not found'], 404);
+            return response()->json(['success' => false, 'message' => 'Pet Boarding not found'], 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -74,19 +84,28 @@ class PetBoardingController extends Controller
             'pet_type' => 'sometimes|required|string|max:255',
             'pet_check_in' => 'sometimes|required|string|max:255',
             'check_in_date' => 'sometimes|required|date',
-            'check_in_time' => 'sometimes|required|time',
+            'check_in_time' => 'sometimes|required|regex:/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', // Validate as HH:MM format
             'days' => 'sometimes|required|integer|min:1',
             'hours' => 'sometimes|required|integer|min:0',
             'additional_details' => 'sometimes|nullable|string|max:500',
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        $petBoarding->update($request->all());
+        try {
+            $petBoarding->update($request->all());
 
-        return response()->json($petBoarding, 200);
+            return response()->json([
+                'success' => true,
+                'message' => 'Pet boarding appointment successfully updated.',
+                'data' => $petBoarding
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error updating pet boarding appointment: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to update pet boarding appointment'], 500);
+        }
     }
 
     // Delete a specific pet boarding appointment
@@ -95,10 +114,19 @@ class PetBoardingController extends Controller
         $petBoarding = PetBoarding::find($id);
 
         if (!$petBoarding) {
-            return response()->json(['message' => 'Pet Boarding not found'], 404);
+            return response()->json(['success' => false, 'message' => 'Pet Boarding not found'], 404);
         }
 
-        $petBoarding->delete();
-        return response()->json(['message' => 'Pet Boarding deleted successfully'], 204);
+        try {
+            $petBoarding->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pet boarding appointment successfully deleted.'
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error deleting pet boarding appointment: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to delete pet boarding appointment'], 500);
+        }
     }
 }
