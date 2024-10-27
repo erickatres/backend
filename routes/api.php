@@ -5,7 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\AdminsController;
 use App\Http\Controllers\AppointmentsController;
-use App\Http\Controllers\ReviewsController; // Include the ReviewsController
+use App\Http\Controllers\ReviewsController;
+use App\Http\Controllers\PetBoardingController; // Include the PetBoardingController
 
 // Client Routes
 Route::prefix('clients')->group(function () {
@@ -45,6 +46,15 @@ Route::middleware('auth:sanctum')->prefix('reviews')->group(function () {
     Route::get('/{id}', [ReviewsController::class, 'show'])->name('reviews.show'); // Get specific review by ID
     Route::put('/{id}', [ReviewsController::class, 'update'])->name('reviews.update'); // Update specific review by ID
     Route::delete('/{id}', [ReviewsController::class, 'destroy'])->name('reviews.destroy'); // Delete specific review by ID
+});
+
+// Pet Boarding Routes (Requires Authentication)
+Route::middleware('auth:sanctum')->prefix('pet-boardings')->group(function () {
+    Route::post('/', [PetBoardingController::class, 'store'])->name('pet-boardings.store'); // Create new pet boarding appointment
+    Route::get('/', [PetBoardingController::class, 'index'])->name('pet-boardings.index'); // Get all pet boarding appointments
+    Route::get('/{id}', [PetBoardingController::class, 'show'])->name('pet-boardings.show'); // Get specific pet boarding appointment by ID
+    Route::put('/{id}', [PetBoardingController::class, 'update'])->name('pet-boardings.update'); // Update specific pet boarding appointment by ID
+    Route::delete('/{id}', [PetBoardingController::class, 'destroy'])->name('pet-boardings.destroy'); // Delete specific pet boarding appointment by ID
 });
 
 // Services and Supplies Routes (Requires Admin Authentication)

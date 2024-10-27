@@ -16,7 +16,8 @@ class AppointmentEmailTest extends TestCase
 
         // Your logic to trigger the email sending
         $appointmentData = [
-            'client_name' => 'Test Client',
+            'first_name' => 'ericka',
+            'last_name' => 'brudo',
             'phone' => '09519878479',
             'email' => 'erickabrudo2@gmail.com',
             'address' => 'bonuan',
