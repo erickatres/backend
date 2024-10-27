@@ -37,6 +37,10 @@ Route::middleware('auth:sanctum')->prefix('appointments')->group(function () {
     Route::get('/{id}', [AppointmentsController::class, 'show'])->name('appointments.show'); // Get specific appointment by ID
     Route::put('/{id}', [AppointmentsController::class, 'update'])->name('appointments.update'); // Update specific appointment by ID
     Route::delete('/{id}', [AppointmentsController::class, 'destroy'])->name('appointments.destroy'); // Delete specific appointment by ID
+
+    // Admin routes for approval and cancellation
+    Route::post('/{id}/approve', [AppointmentsController::class, 'approve'])->name('appointments.approve'); // Approve appointment
+    Route::post('/{id}/cancel', [AppointmentsController::class, 'cancel'])->name('appointments.cancel'); // Cancel appointment
 });
 
 // Reviews Routes (Requires Authentication)

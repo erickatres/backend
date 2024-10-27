@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AppointmentBooked; // Import the Mailable
+use App\Mail\AdminAppointment; // Import the Mailable for admin notifications
 use App\Models\Appointments; // Ensure this matches your model's namespace
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail; // Import the Mail facade
@@ -31,7 +32,7 @@ class AppointmentsController extends Controller
 
         try {
             // Create and save a new appointment instance
-            $appointment = Appointments::create($validatedData);
+            $appointment = Appointments::create(array_merge($validatedData, ['status' => 'pending'])); // Default status to pending
 
             // Prepare the appointment data for the email
             $appointmentData = [
@@ -72,7 +73,6 @@ class AppointmentsController extends Controller
         } catch (\Exception $e) {
             // Log the error instead of throwing a new exception
             Log::error('Failed to send confirmation email: ' . $e->getMessage());
-            // Optionally, you can handle the response differently
         }
     }
 
@@ -126,6 +126,32 @@ class AppointmentsController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    // Approve an appointment
+    public function approve($id)
+    {
+        $appointment = Appointments::findOrFail($id);
+        $appointment->status = 'approved';
+        $appointment->save();
+
+        // Send notification email to client
+        Mail::to($appointment->email)->send(new AdminAppointment($appointment->toArray(), 'approved'));
+
+        return response()->json(['message' => 'Appointment approved successfully!']);
+    }
+
+    // Cancel an appointment
+    public function cancel($id)
+    {
+        $appointment = Appointments::findOrFail($id);
+        $appointment->status = 'cancelled';
+        $appointment->save();
+
+        // Send notification email to client
+        Mail::to($appointment->email)->send(new AdminAppointment($appointment->toArray(), 'cancelled'));
+
+        return response()->json(['message' => 'Appointment cancelled successfully!']);
     }
 
     // Delete an appointment by ID

@@ -10,7 +10,7 @@ class Appointments extends Model
     use HasFactory;
 
     // Define the table associated with the model
-    protected $table = 'appointments'; // Ensure this matches your actual table name
+    protected $table = 'appointments';
 
     // Allow mass assignment for these fields
     protected $fillable = [
@@ -28,20 +28,16 @@ class Appointments extends Model
         'additional_details',
     ];
 
-    // Casting appointment_date to a datetime instance
+    // Casting fields
     protected $casts = [
-        'appointment_date' => 'datetime', // Change to 'date' if you only want the date
+        'appointment_date' => 'datetime', 
     ];
 
-    // If you are not using timestamps in your table, set to false
-    public $timestamps = true;  // Set to false if 'created_at' and 'updated_at' are not used
+    // Enable timestamps
+    public $timestamps = true;
 
     /**
      * Scope a query to only include appointments for a specific pet type.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $petType
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeForPetType($query, string $petType)
     {
@@ -50,10 +46,6 @@ class Appointments extends Model
 
     /**
      * Scope a query to only include appointments on a specific date.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $date
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeForAppointmentDate($query, string $date)
     {
