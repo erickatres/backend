@@ -17,7 +17,7 @@ class ClientsController extends Controller
             'fullname' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:clients',
             'email' => 'required|email|unique:clients', // Add email validation
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|min:8',
         ]);
 
         // Save client details
@@ -46,14 +46,13 @@ class ClientsController extends Controller
         $client = Clients::where('username', $request->username)->first();
 
         if ($client && Hash::check($request->password, $client->password)) {
-            $token = $client->createToken('client-token')->plainTextToken;
+            //$token = $client->createToken('client-token')->plainTextToken;
 
             // Optional: Send email notification upon successful login (if needed)
             // Mail::to($client->email)->send(new LoginSuccessMail());
 
             return response()->json([
-                'message' => 'Login successful',
-                'token' => $token,
+                'message' => 'Login successful'
             ], 200);
         } else {
             return response()->json(['message' => 'Invalid credentials'], 401);
