@@ -4,45 +4,71 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\AdminsController;
+use App\Http\Controllers\AppointmentsController;
+use App\Http\Controllers\ReviewsController; // Include the ReviewsController
 
 // Client Routes
-Route::get('/clients', [ClientsController::class, 'index']);
-Route::post('/clients/register', [ClientsController::class, 'store']);
-Route::post('/clients/login', [ClientsController::class, 'login']);
-// Removed forgot-password route, but retained reset-password for clients
-Route::post('/clients/reset-password', [ClientsController::class, 'resetPassword']);
-Route::get('/clients/{id}', [ClientsController::class, 'show']);
-Route::put('/clients/{id}', [ClientsController::class, 'update']);
-Route::delete('/clients/{id}', [ClientsController::class, 'destroy']);
+Route::prefix('clients')->group(function () {
+    Route::get('/', [ClientsController::class, 'index'])->name('clients.index'); // Get all clients
+    Route::post('/register', [ClientsController::class, 'store'])->name('clients.register'); // Register new client
+    Route::post('/login', [ClientsController::class, 'login'])->name('clients.login'); // Client login
+    Route::post('/reset-password', [ClientsController::class, 'resetPassword'])->name('clients.reset-password'); // Reset client password
+    Route::get('/{id}', [ClientsController::class, 'show'])->name('clients.show'); // Get specific client by ID
+    Route::put('/{id}', [ClientsController::class, 'update'])->name('clients.update'); // Update specific client
+    Route::delete('/{id}', [ClientsController::class, 'destroy'])->name('clients.destroy'); // Delete specific client
+});
 
 // Admin Routes
-Route::get('/admins', [AdminsController::class, 'index']);
-Route::post('/admins/register', [AdminsController::class, 'store']);
-Route::post('/admins/login', [AdminsController::class, 'login']);
-// Route for admin password reset (handled without email)
-Route::post('/admins/reset-password', [AdminsController::class, 'resetPassword']);
-Route::get('/admins/{id}', [AdminsController::class, 'show']);
-Route::put('/admins/{id}', [AdminsController::class, 'update']);
-Route::delete('/admins/{id}', [AdminsController::class, 'destroy']);
+Route::prefix('admins')->group(function () {
+    Route::get('/', [AdminsController::class, 'index'])->name('admins.index'); // Get all admins
+    Route::post('/register', [AdminsController::class, 'store'])->name('admins.register'); // Register new admin
+    Route::post('/login', [AdminsController::class, 'login'])->name('admins.login'); // Admin login
+    Route::post('/reset-password', [AdminsController::class, 'resetPassword'])->name('admins.reset-password'); // Reset admin password
+    Route::get('/{id}', [AdminsController::class, 'show'])->name('admins.show'); // Get specific admin by ID
+    Route::put('/{id}', [AdminsController::class, 'update'])->name('admins.update'); // Update specific admin
+    Route::delete('/{id}', [AdminsController::class, 'destroy'])->name('admins.destroy'); // Delete specific admin
+});
 
-// Route group for admin-managed services and supplies
+// Appointments Routes (Requires Authentication)
+Route::middleware('auth:sanctum')->prefix('appointments')->group(function () {
+    Route::post('/', [AppointmentsController::class, 'store'])->name('appointments.store'); // Create new appointment
+    Route::get('/', [AppointmentsController::class, 'index'])->name('appointments.index'); // Get all appointments
+    Route::get('/{id}', [AppointmentsController::class, 'show'])->name('appointments.show'); // Get specific appointment by ID
+    Route::put('/{id}', [AppointmentsController::class, 'update'])->name('appointments.update'); // Update specific appointment by ID
+    Route::delete('/{id}', [AppointmentsController::class, 'destroy'])->name('appointments.destroy'); // Delete specific appointment by ID
+});
+
+// Reviews Routes (Requires Authentication)
+Route::middleware('auth:sanctum')->prefix('reviews')->group(function () {
+    Route::post('/', [ReviewsController::class, 'store'])->name('reviews.store'); // Create new review
+    Route::get('/', [ReviewsController::class, 'index'])->name('reviews.index'); // Get all reviews
+    Route::get('/{id}', [ReviewsController::class, 'show'])->name('reviews.show'); // Get specific review by ID
+    Route::put('/{id}', [ReviewsController::class, 'update'])->name('reviews.update'); // Update specific review by ID
+    Route::delete('/{id}', [ReviewsController::class, 'destroy'])->name('reviews.destroy'); // Delete specific review by ID
+});
+
+// Services and Supplies Routes (Requires Admin Authentication)
 Route::middleware('auth:sanctum')->group(function () {
     // Service Routes
-    Route::post('/services', [AdminsController::class, 'createService']);
-    Route::get('/services', [AdminsController::class, 'getAllServices']);
-    Route::get('/services/{id}', [AdminsController::class, 'getService']);
-    Route::put('/services/{id}', [AdminsController::class, 'updateService']);
-    Route::delete('/services/{id}', [AdminsController::class, 'deleteService']);
-    
+    Route::prefix('services')->group(function () {
+        Route::post('/', [AdminsController::class, 'createService'])->name('services.store'); // Create new service
+        Route::get('/', [AdminsController::class, 'getAllServices'])->name('services.index'); // Get all services
+        Route::get('/{id}', [AdminsController::class, 'getService'])->name('services.show'); // Get specific service by ID
+        Route::put('/{id}', [AdminsController::class, 'updateService'])->name('services.update'); // Update specific service by ID
+        Route::delete('/{id}', [AdminsController::class, 'deleteService'])->name('services.destroy'); // Delete specific service by ID
+    });
+
     // Supply Routes
-    Route::post('/supplies', [AdminsController::class, 'createSupply']);
-    Route::get('/supplies', [AdminsController::class, 'getAllSupplies']);
-    Route::get('/supplies/{id}', [AdminsController::class, 'getSupply']);
-    Route::put('/supplies/{id}', [AdminsController::class, 'updateSupply']);
-    Route::delete('/supplies/{id}', [AdminsController::class, 'deleteSupply']);
+    Route::prefix('supplies')->group(function () {
+        Route::post('/', [AdminsController::class, 'createSupply'])->name('supplies.store'); // Create new supply
+        Route::get('/', [AdminsController::class, 'getAllSupplies'])->name('supplies.index'); // Get all supplies
+        Route::get('/{id}', [AdminsController::class, 'getSupply'])->name('supplies.show'); // Get specific supply by ID
+        Route::put('/{id}', [AdminsController::class, 'updateSupply'])->name('supplies.update'); // Update specific supply by ID
+        Route::delete('/{id}', [AdminsController::class, 'deleteSupply'])->name('supplies.destroy'); // Delete specific supply by ID
+    });
 });
 
 // Route to get the authenticated user
 Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+    return $request->user(); // Get authenticated user details
+})->middleware('auth:sanctum')->name('user.show');
