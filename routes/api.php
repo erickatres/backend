@@ -11,7 +11,7 @@ use App\Http\Controllers\PetBoardingController; // Include the PetBoardingContro
 // Client Routes
 Route::prefix('clients')->group(function () {
     Route::get('/', [ClientsController::class, 'index'])->name('clients.index'); // Get all clients
-    Route::post('/register', [ClientsController::class, 'store'])->name('clients.register'); // Register new client
+    Route::post('/signup', [ClientsController::class, 'store'])->name('clients.signup'); // Register new client
     Route::post('/login', [ClientsController::class, 'login'])->name('clients.login'); // Client login
     Route::post('/reset-password', [ClientsController::class, 'resetPassword'])->name('clients.reset-password'); // Reset client password
     Route::get('/{id}', [ClientsController::class, 'show'])->name('clients.show'); // Get specific client by ID
@@ -37,7 +37,8 @@ Route::middleware('auth:sanctum')->prefix('appointments')->group(function () {
     Route::get('/{id}', [AppointmentsController::class, 'show'])->name('appointments.show'); // Get specific appointment by ID
     Route::put('/{id}', [AppointmentsController::class, 'update'])->name('appointments.update'); // Update specific appointment by ID
     Route::delete('/{id}', [AppointmentsController::class, 'destroy'])->name('appointments.destroy'); // Delete specific appointment by ID
-
+//wlang /book /diniyanilagaysiren:))/ilagay ninyo, paano kayo mag book? / Anoa book function? / wait / iba ang appointments sa boarding right?
+// 
     // Admin routes for approval and cancellation
     Route::post('/{id}/approve', [AppointmentsController::class, 'approve'])->name('appointments.approve'); // Approve appointment
     Route::post('/{id}/cancel', [AppointmentsController::class, 'cancel'])->name('appointments.cancel'); // Cancel appointment
@@ -51,9 +52,11 @@ Route::middleware('auth:sanctum')->prefix('reviews')->group(function () {
     Route::put('/{id}', [ReviewsController::class, 'update'])->name('reviews.update'); // Update specific review by ID
     Route::delete('/{id}', [ReviewsController::class, 'destroy'])->name('reviews.destroy'); // Delete specific review by ID
 });
+//ito yung feedback
 
 // Pet Boarding Routes (Requires Authentication)
 Route::middleware('auth:sanctum')->prefix('pet-boardings')->group(function () {
+    // V ito ba yung boarding ninyo? yess
     Route::post('/', [PetBoardingController::class, 'store'])->name('pet-boardings.store'); // Create new pet boarding appointment
     Route::get('/', [PetBoardingController::class, 'index'])->name('pet-boardings.index'); // Get all pet boarding appointments
     Route::get('/{id}', [PetBoardingController::class, 'show'])->name('pet-boardings.show'); // Get specific pet boarding appointment by ID

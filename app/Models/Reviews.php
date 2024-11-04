@@ -28,7 +28,7 @@ class Reviews extends Model
     {
         return [
             'rating' => 'required|integer|min:1|max:5',
-            'comments' => 'nullable|string|max:255', // Added a max length for comments
+            'comments' => 'sometimes|nullable|string|max:255', // Added a max length for comments
             'is_editable' => 'boolean',
         ];
     }

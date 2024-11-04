@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable; // Extend Authenticatable for authentication
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Sanctum\HasApiTokens; // Import HasApiTokens for API token management
+use Illuminate\Support\Facades\Hash;
 
 class Clients extends Authenticatable // Use singular name and Authenticatable for authentication
 {
@@ -27,7 +28,7 @@ class Clients extends Authenticatable // Use singular name and Authenticatable f
     // Method to reset password
     public function resetPassword($newPassword)
     {
-        $this->password = bcrypt($newPassword); // Hash the new password
+        $this->password = Hash::make($newPassword); // Hash the new password
         $this->save(); // Save changes to the database
     }
 

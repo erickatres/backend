@@ -9,6 +9,12 @@ use App\Mail\PetBoardingBooked;
 use App\Mail\AdminAppointmentNotification; // Import AppointmentNotification Mailable
 use App\Models\Reviews;
 
+// In web.php (or api.php)
+Route::get('/login', function () {
+    return response()->json(['message' => 'Unauthorized'], 401);
+})->name('login');
+
+
 // Route for testing appointment email
 Route::get('/test-appointment-email', function () {
     try {

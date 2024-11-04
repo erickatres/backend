@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\AppointmentBooked; // Import the Mailable
-use App\Mail\AdminAppointment; // Import the Mailable for admin notifications
-use App\Models\Appointments; // Ensure this matches your model's namespace
+use App\Mail\AppointmentBooked;
+use App\Mail\AdminAppointment;
+use App\Models\Appointments;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail; // Import the Mail facade
-use Illuminate\Support\Facades\Log; // Import the Log facade for error logging
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentsController extends Controller
 {
@@ -27,12 +27,12 @@ class AppointmentsController extends Controller
             'appointment_time' => 'required|string|max:10',
             'service_type' => 'required|string|max:100',
             'chosen_service' => 'required|string|max:100',
-            'additional_details' => 'nullable|string|max:500',
+            'additional_details' => 'sometimes|nullable|string|max:500',
         ]);
 
         try {
             // Create and save a new appointment instance
-            $appointment = Appointments::create(array_merge($validatedData, ['status' => 'pending'])); // Default status to pending
+            $appointment = Appointments::create(array_merge($validatedData, ['status' => 'pending']));
 
             // Prepare the appointment data for the email
             $appointmentData = [
@@ -45,18 +45,20 @@ class AppointmentsController extends Controller
                 'pet_type' => $validatedData['pet_type'],
                 'phone' => $validatedData['phone'],
                 'email' => $validatedData['email'],
+                'additional_details' => $validatedData['additional_details'],
             ];
 
             // Send confirmation email
             $this->sendConfirmationEmail($validatedData['email'], $appointmentData);
 
-            // Return success response with created appointment data
+            // Return success response
             return response()->json([
                 'success' => true,
                 'message' => 'Appointment successfully booked!',
                 'data' => $appointment
-            ], 201); // HTTP 201 for resource creation
+            ], 201);
         } catch (\Exception $e) {
+            Log::error('Failed to book appointment: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to book the appointment, please try again.',
@@ -71,7 +73,6 @@ class AppointmentsController extends Controller
         try {
             Mail::to($email)->send(new AppointmentBooked($appointmentData));
         } catch (\Exception $e) {
-            // Log the error instead of throwing a new exception
             Log::error('Failed to send confirmation email: ' . $e->getMessage());
         }
     }
@@ -79,8 +80,7 @@ class AppointmentsController extends Controller
     // Retrieve all appointments
     public function index()
     {
-        $appointments = Appointments::all();
-        return response()->json($appointments);
+        return response()->json(Appointments::all());
     }
 
     // Show a specific appointment by ID
@@ -97,7 +97,8 @@ class AppointmentsController extends Controller
 
         // Validate the form data
         $validatedData = $request->validate([
-            'client_name' => 'sometimes|string|max:255',
+            'first_name' => 'sometimes|string|max:255',
+            'last_name' => 'sometimes|string|max:255',
             'phone' => 'sometimes|string|max:20',
             'email' => 'sometimes|email|max:255',
             'address' => 'nullable|string|max:255',
@@ -111,15 +112,14 @@ class AppointmentsController extends Controller
         ]);
 
         try {
-            // Update only provided fields
             $appointment->update($validatedData);
-
             return response()->json([
                 'success' => true,
                 'message' => 'Appointment successfully updated!',
                 'data' => $appointment
             ]);
         } catch (\Exception $e) {
+            Log::error('Failed to update appointment: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update the appointment, please try again.',
@@ -132,8 +132,7 @@ class AppointmentsController extends Controller
     public function approve($id)
     {
         $appointment = Appointments::findOrFail($id);
-        $appointment->status = 'approved';
-        $appointment->save();
+        $appointment->update(['status' => 'approved']);
 
         // Send notification email to client
         Mail::to($appointment->email)->send(new AdminAppointment($appointment->toArray(), 'approved'));
@@ -145,8 +144,7 @@ class AppointmentsController extends Controller
     public function cancel($id)
     {
         $appointment = Appointments::findOrFail($id);
-        $appointment->status = 'cancelled';
-        $appointment->save();
+        $appointment->update(['status' => 'cancelled']);
 
         // Send notification email to client
         Mail::to($appointment->email)->send(new AdminAppointment($appointment->toArray(), 'cancelled'));
@@ -166,6 +164,7 @@ class AppointmentsController extends Controller
                 'message' => 'Appointment successfully deleted!'
             ]);
         } catch (\Exception $e) {
+            Log::error('Failed to delete appointment: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete the appointment, please try again.',

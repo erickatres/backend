@@ -6,7 +6,6 @@ use App\Models\Clients;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-
 class ClientsController extends Controller
 {
     // Clients registration
@@ -14,9 +13,12 @@ class ClientsController extends Controller
     {
         $request->validate([
             'fullname' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:clients',
-            'email' => 'required|email|unique:clients', // Add email validation
+            'username' => 'required|string|max:255|unique:clients,username',
+            'email' => 'required|email|unique:clients,email',
             'password' => 'required|min:8',
+        ], [
+            'username.unique' => 'This username is already taken. Please choose another one.',
+            'email.unique' => 'This email is already registered. Please use a different email address.',
         ]);
 
         // Save client details
@@ -24,8 +26,8 @@ class ClientsController extends Controller
         $client = Clients::create([
             'fullname' => $request->fullname,
             'username' => $request->username,
-            'email' => $request->email, // Save email
-            'password' => $hashedPassword,
+            'email' => $request->email,
+            'password' => $request->password,
         ]);
 
         return response()->json([
@@ -42,109 +44,44 @@ class ClientsController extends Controller
             'password' => 'required|string',
         ]);
 
+        // Find the client by username
         $client = Clients::where('username', $request->username)->first();
 
-        if ($client && Hash::check($request->password, $client->password)) {
-            //$token = $client->createToken('client-token')->plainTextToken;
-
-            // Optional: Send email notification upon successful login (if needed)
-            // Mail::to($client->email)->send(new LoginSuccessMail());
+        // Check if the client exists
+        if (!$client) {
+            return response()->json(['message' => 'Username not found'], 404);
+        }
+        // Verify the password using Hash::check
+        else if (Hash::check($request->password, $client->password)) {
+            // If the password is correct, generate a token
+            $token = $client->createToken('client-token')->plainTextToken;
 
             return response()->json([
-                'message' => 'Login successful'
+                'message' => 'Login successful',
+                'token' => $token,
             ], 200);
-        } else {
-            return response()->json(['message' => 'Invalid credentials'], 401);
         }
-    }
-
-    // Show a single client
-    public function show($id)
-    {
-        $client = Clients::find($id);
-
-        if ($client) {
-            return response()->json($client, 200);
-        } else {
-            return response()->json(['message' => 'Client not found'], 404);
+        else {
+            return response()->json(['message' => 'Invalid password'], 401);
         }
-    }
-
-    // Update client
-    public function update(Request $request, $id)
-    {
-        $client = Clients::find($id);
-
-        if ($client) {
-            $request->validate([
-                'fullname' => 'sometimes|required|string|max:255',
-                'username' => 'sometimes|required|string|max:255|unique:clients,username,' . $client->id,
-                'email' => 'sometimes|required|email|unique:clients,email,' . $client->id, // Add email validation for update
-                'password' => 'sometimes|required|min:8|confirmed',
-            ]);
-
-            $client->fullname = $request->fullname ?? $client->fullname;
-            $client->username = $request->username ?? $client->username;
-            $client->email = $request->email ?? $client->email; // Update email
-
-            if ($request->has('password')) {
-                $client->password = Hash::make($request->password);
-            }
-
-            $client->save();
-
-            return response()->json([
-                'message' => 'Client updated successfully',
-                'client' => $client,
-            ], 200);
-        } else {
-            return response()->json(['message' => 'Client not found'], 404);
-        }
-    }
-
-    // Delete client
-    public function destroy($id)
-    {
-        $client = Clients::find($id);
-
-        if ($client) {
-            $client->delete();
-            return response()->json(['message' => 'Client deleted successfully'], 200);
-        } else {
-            return response()->json(['message' => 'Client not found'], 404);
-        }
-    }
-
-    // Send email for password reset
-    public function forgotPassword(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email|exists:clients,email', // Validate email for password reset
-        ]);
-
-        // Logic to send password reset email can be added here
-        // Optionally, you could generate a password reset link/token if needed
-        // Mail::to($request->email)->send(new PasswordResetMail());
-
-        return response()->json(['message' => 'Password reset email sent.'], 200);
     }
 
     // Reset password without OTP
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:clients,email', // Validate email
+            'email' => 'required|email|exists:clients,email',
             'password' => 'required|min:8|confirmed',
         ]);
 
         $client = Clients::where('email', $request->email)->first();
         if ($client) {
-            $client->password = Hash::make($request->password); // Hash the new password
+            $client->password = Hash::make($request->password);
             $client->save();
 
             return response()->json(['message' => 'Password reset successfully.'], 200);
         }
 
-        return response()->json(['message' => 'Client not found'], 404);
+        return response()->json(['message' => 'Invalid username or password'], 401);
     }
 }
